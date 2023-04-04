@@ -7,6 +7,8 @@ import { OpenAIModel, TranslateBody } from '@/types/types';
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
 
+const API_KEY = process.env.OPENAI_API_KEY || '';
+
 export default function Home() {
   const [inputLanguage, setInputLanguage] = useState<string>('JavaScript');
   const [outputLanguage, setOutputLanguage] = useState<string>('Python');
@@ -15,15 +17,10 @@ export default function Home() {
   const [model, setModel] = useState<OpenAIModel>('gpt-3.5-turbo');
   const [loading, setLoading] = useState<boolean>(false);
   const [hasTranslated, setHasTranslated] = useState<boolean>(false);
-  const [apiKey, setApiKey] = useState<string>('');
+  const [apiKey, setApiKey] = useState<string>(API_KEY);
 
   const handleTranslate = async () => {
     const maxCodeLength = model === 'gpt-3.5-turbo' ? 6000 : 12000;
-
-    if (!apiKey) {
-      alert('Please enter an API key.');
-      return;
-    }
 
     if (inputLanguage === outputLanguage) {
       alert('Please select different languages.');
@@ -52,7 +49,7 @@ export default function Home() {
       outputLanguage,
       inputCode,
       model,
-      apiKey,
+      apiKey: API_KEY,
     };
 
     const response = await fetch('/api/translate', {
@@ -109,8 +106,6 @@ export default function Home() {
 
   const handleApiKeyChange = (value: string) => {
     setApiKey(value);
-
-    localStorage.setItem('apiKey', value);
   };
 
   useEffect(() => {
@@ -119,17 +114,10 @@ export default function Home() {
     }
   }, [outputLanguage]);
 
-  useEffect(() => {
-    const apiKey = localStorage.getItem('apiKey');
-
-    if (apiKey) {
-      setApiKey(apiKey);
-    }
-  }, []);
-
   return (
     <>
       <Head>
+
         <title>Code Translator</title>
         <meta
           name="description"
